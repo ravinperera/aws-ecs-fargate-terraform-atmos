@@ -1,0 +1,70 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - "infrastructure/**"
+      - ".github/workflows/terraform-plan.yml"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment name
+        required: true
+        default: dev
+      region:
+        description: AWS region
+        required: true
+        default: eu-west-2
+      component:
+        description: Atmos component
+        required: true
+        default: aws/ecs-fargate-service
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  plan:
+    name: Terraform plan
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ inputs.region || 'eu-west-2' }}
+      ATMOS_COMPONENT: ${{ inputs.component || 'aws/ecs-fargate-service' }}
+      ATMOS_STACK: ${{ inputs.environment || 'dev' }}/eu-west-2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::111122223333:role/example-github-oidc-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Setup Atmos
+        run: |
+          curl -sSL https://github.com/cloudposse/atmos/releases/download/v1.95.0/atmos_1.95.0_linux_amd64.tar.gz -o atmos.tar.gz
+          tar -xzf atmos.tar.gz atmos
+          sudo mv atmos /usr/local/bin/atmos
+          atmos version
+
+      - name: Terraform format check
+        working-directory: infrastructure/components/terraform/aws/ecs-fargate-service
+        run: terraform fmt -check -recursive
+
+      - name: Atmos validate
+        working-directory: infrastructure
+        run: atmos validate component $ATMOS_COMPONENT -s $ATMOS_STACK
+
+      - name: Atmos terraform plan
+        working-directory: infrastructure
+        run: atmos terraform plan $ATMOS_COMPONENT -s $ATMOS_STACK
