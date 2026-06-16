@@ -1,0 +1,39 @@
+vars:
+  tenant: example
+  environment: dev
+  stage: default
+  region: eu-west-2
+
+components:
+  terraform:
+    aws/ecs-fargate-service:
+      metadata:
+        component: aws/ecs-fargate-service
+      vars:
+        name: sample-api
+        cluster_arn: arn:aws:ecs:eu-west-2:111122223333:cluster/example-dev
+        task_execution_role_arn: arn:aws:iam::111122223333:role/example-ecs-execution-role
+        task_role_arn: arn:aws:iam::111122223333:role/example-ecs-task-role
+        container_image: 111122223333.dkr.ecr.eu-west-2.amazonaws.com/sample-api
+        container_version: latest
+        container_port: 8000
+        desired_count: 2
+        cpu: 512
+        memory: 1024
+        subnet_ids:
+          - subnet-aaaaaaaa
+          - subnet-bbbbbbbb
+        security_group_ids:
+          - sg-aaaaaaaa
+        target_group_arn: arn:aws:elasticloadbalancing:eu-west-2:111122223333:targetgroup/sample-api/abc123
+        log_group_name: /ecs/sample-api
+        environment_variables:
+          DJANGO_SETTINGS_MODULE: config.settings.production
+          AWS_REGION: eu-west-2
+        secrets:
+          DATABASE_URL: arn:aws:secretsmanager:eu-west-2:111122223333:secret:sample-api/dev/database-url
+          SECRET_KEY: arn:aws:secretsmanager:eu-west-2:111122223333:secret:sample-api/dev/secret-key
+        tags:
+          Project: ecs-fargate-showcase
+          ManagedBy: terraform
+          Environment: dev
