@@ -33,7 +33,7 @@ jobs:
     env:
       AWS_REGION: ${{ inputs.region || 'eu-west-2' }}
       ATMOS_COMPONENT: ${{ inputs.component || 'aws/ecs-fargate-service' }}
-      ATMOS_STACK: ${{ inputs.environment || 'dev' }}/eu-west-2
+      ATMOS_STACK: ${{ inputs.environment || 'dev' }}/${{ inputs.region || 'eu-west-2' }}
 
     steps:
       - name: Checkout
