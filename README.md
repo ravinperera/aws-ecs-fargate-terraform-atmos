@@ -75,7 +75,8 @@ AWS Account
 │   └── stacks/dev/eu-west-2.yaml
 ├── docs/
 │   ├── architecture.md
-│   └── deployment-flow.md
+│   ├── deployment-flow.md
+│   └── deployment-readiness.md
 ├── CONTRIBUTING.md
 └── README.md
 ```
@@ -96,6 +97,7 @@ This pattern fits a Django, FastAPI, Node.js, or API service deployed to ECS Far
 ## Documentation
 
 - [Deployment flow](docs/deployment-flow.md)
+- [Deployment readiness checklist](docs/deployment-readiness.md)
 - [Architecture](docs/architecture.md)
 - [Contributing](CONTRIBUTING.md)
 
