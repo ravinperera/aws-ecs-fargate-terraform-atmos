@@ -43,22 +43,9 @@ This is a reference pattern, not a production-ready drop-in module. Treat it as 
 
 ## Architecture
 
-```text
-GitHub Actions
-   |
-   | OIDC assume role
-   v
-AWS Account
-   |
-   +-- ECR image repository
-   +-- ECS Cluster
-   +-- ECS Task Definition
-   +-- ECS Service on Fargate
-   +-- Application Load Balancer
-   +-- CloudWatch Log Group
-   +-- Secrets Manager
-   +-- VPC private subnets
-```
+GitHub Actions uses AWS OIDC to assume a scoped deployment role, publish container images to ECR, and update an ECS service running in private subnets behind an Application Load Balancer. Runtime secrets come from Secrets Manager and application logs are sent to CloudWatch Logs.
+
+See the [Mermaid architecture diagram and component notes](docs/architecture.md).
 
 ## Repository Structure
 
