@@ -2,6 +2,41 @@
 
 This repository models a production-style ECS Fargate deployment pattern.
 
+## Reference Architecture
+
+```mermaid
+flowchart LR
+    developer[Developer] -->|push or pull request| gha[GitHub Actions]
+    gha -->|OIDC token| oidc[AWS IAM OIDC provider]
+    oidc -->|assume scoped role| deployRole[Deployment IAM role]
+
+    subgraph aws[AWS account]
+        ecr[ECR repository]
+        secrets[Secrets Manager]
+        logs[CloudWatch Logs]
+
+        subgraph vpc[VPC]
+            alb[Application Load Balancer]
+
+            subgraph private[Private subnets]
+                ecs[ECS service on Fargate]
+                task[ECS task definition]
+            end
+        end
+
+        deployRole -->|push image| ecr
+        deployRole -->|plan and apply| task
+        deployRole -->|update service| ecs
+        ecr -->|pull image| task
+        secrets -->|inject runtime secrets| task
+        task --> ecs
+        alb -->|forward healthy traffic| ecs
+        ecs -->|application logs| logs
+    end
+```
+
+The diagram is intentionally high level. A real deployment should also include NAT or VPC endpoints, security groups, route tables, autoscaling, alarms, and environment-specific controls.
+
 ## Core Components
 
 - **GitHub Actions** runs validation and Terraform planning.
@@ -9,7 +44,8 @@ This repository models a production-style ECS Fargate deployment pattern.
 - **Terraform** defines reusable cloud resources.
 - **Atmos** separates reusable components from environment-specific stack configuration.
 - **ECS Fargate** runs the application container without managing EC2 hosts.
-- **ALB target group** routes traffic to healthy ECS tasks.
+- **Application Load Balancer** routes traffic to healthy ECS tasks.
+- **Amazon ECR** stores versioned container images.
 - **CloudWatch Logs** stores application logs.
 - **Secrets Manager** provides sensitive runtime values to the container.
 
