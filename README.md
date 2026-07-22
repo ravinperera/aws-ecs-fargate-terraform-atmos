@@ -76,7 +76,8 @@ AWS Account
 ├── docs/
 │   ├── architecture.md
 │   ├── deployment-flow.md
-│   └── deployment-readiness.md
+│   ├── deployment-readiness.md
+│   └── terraform-state-safety.md
 ├── CONTRIBUTING.md
 └── README.md
 ```
@@ -98,6 +99,7 @@ This pattern fits a Django, FastAPI, Node.js, or API service deployed to ECS Far
 
 - [Deployment flow](docs/deployment-flow.md)
 - [Deployment readiness checklist](docs/deployment-readiness.md)
+- [Terraform state safety](docs/terraform-state-safety.md)
 - [Architecture](docs/architecture.md)
 - [Contributing](CONTRIBUTING.md)
 
