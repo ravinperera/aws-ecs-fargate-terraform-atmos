@@ -29,7 +29,7 @@ Expected adoption path:
 2. Keep environment-specific values in Atmos stack files.
 3. Keep reusable infrastructure logic inside Terraform components.
 4. Pass image versions from CI/CD rather than hardcoding `latest`.
-5. Review IAM, networking, secrets, observability, and rollback behaviour before using this in a real environment.
+5. Complete the [production readiness checklist](docs/deployment-readiness.md), including IAM, networking, secrets, observability, health checks, autoscaling, evidence, and rollback ownership.
 
 This is a reference pattern, not a production-ready drop-in module. Treat it as a structure to adapt and review.
 
@@ -87,7 +87,7 @@ This pattern fits a Django, FastAPI, Node.js, or API service deployed to ECS Far
 ## Documentation
 
 - [Deployment flow](docs/deployment-flow.md)
-- [Deployment readiness checklist](docs/deployment-readiness.md)
+- [Production readiness checklist](docs/deployment-readiness.md)
 - [ECS deployment incident and rollback runbook](docs/incident-and-rollback-runbook.md)
 - [ECS scaling and cost guardrails](docs/scaling-and-cost-guardrails.md)
 - [Terraform state safety](docs/terraform-state-safety.md)
