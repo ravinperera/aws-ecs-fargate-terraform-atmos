@@ -1,6 +1,14 @@
-# Deployment Readiness Checklist
+# Production Readiness Checklist
 
 Use this checklist before adapting the reference pattern for a real ECS Fargate workload. It is intentionally conservative: completing it does not replace an architecture, security, or change review.
+
+## How to Use This Checklist
+
+- Assign an owner to each section before the production review starts.
+- Link each completed item to evidence such as a Terraform plan, AWS configuration, test result, dashboard, runbook, or approved change record.
+- Mark an item as not applicable only with a documented reason and reviewer agreement.
+- Treat unresolved identity, public-exposure, secret-handling, health-check, or rollback concerns as release blockers.
+- Record any accepted exception with an owner, expiry date, and follow-up action.
 
 ## 1. Replace Reference Values
 
@@ -66,6 +74,25 @@ Use this checklist before adapting the reference pattern for a real ECS Fargate 
 - [ ] Check CloudWatch Logs, alarms, target health, and deployment events for errors.
 - [ ] Confirm no unexpected public IPs, security-group rules, IAM permissions, or secret values were introduced.
 - [ ] Record the deployment outcome and any follow-up actions.
+
+## Readiness Decision Record
+
+Copy this table into the change record, deployment ticket, or pull request used for the production review.
+
+| Field | Entry |
+| --- | --- |
+| Service, environment, and Region | |
+| Release version or image digest | |
+| Checklist owners | |
+| Evidence links | |
+| Open blockers | |
+| Approved exceptions, owners, and expiry dates | |
+| Rollback owner and trigger | |
+| Decision: ready / not ready / ready with exception | |
+| Reviewer and change reference | |
+| Post-deployment verification record | |
+
+A release should not be marked ready while a critical blocker is unresolved. An exception is a time-bound risk decision, not a substitute for completing the control.
 
 ## Reference Pattern Boundary
 
