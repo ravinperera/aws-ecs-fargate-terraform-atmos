@@ -8,6 +8,20 @@ This repository is a public reference implementation for deploying containerized
 
 Use this repo as a reference pattern for structuring an ECS/Fargate service with Terraform and Atmos.
 
+Before running the example, install Terraform and Atmos, then review the placeholder values for the target AWS account. Planning and applying require AWS credentials with permissions appropriate to the resources being evaluated; this repository does not provide credentials.
+
+The quick-start commands use these files:
+
+```text
+infrastructure/
+├── atmos.yaml
+├── stacks/dev/eu-west-2.yaml
+└── components/terraform/aws/ecs-fargate-service/
+    ├── main.tf
+    ├── variables.tf
+    └── outputs.tf
+```
+
 ```bash
 # 1. Review the Atmos stack inputs
 cat infrastructure/stacks/dev/eu-west-2.yaml
@@ -30,6 +44,8 @@ Expected adoption path:
 3. Keep reusable infrastructure logic inside Terraform components.
 4. Pass image versions from CI/CD rather than hardcoding `latest`.
 5. Complete the [production readiness checklist](docs/deployment-readiness.md), including IAM, networking, secrets, observability, health checks, autoscaling, evidence, and rollback ownership.
+
+See the [deployment flow](docs/deployment-flow.md) for the full adoption order, image-promotion guidance, and review points.
 
 This is a reference pattern, not a production-ready drop-in module. Treat it as a structure to adapt and review.
 
