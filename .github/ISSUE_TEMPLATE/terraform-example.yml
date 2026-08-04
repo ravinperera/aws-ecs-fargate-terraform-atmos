@@ -1,0 +1,62 @@
+name: Terraform or Atmos example improvement
+description: Report a problem or propose a focused improvement to the infrastructure examples
+title: "[Terraform]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository is a generic reference pattern, not a production-ready module. Use fictional placeholders and do not include credentials, real account identifiers, private infrastructure details, or client data.
+  - type: dropdown
+    id: change-area
+    attributes:
+      label: Change area
+      options:
+        - Terraform component
+        - Atmos stack or configuration
+        - GitHub Actions example
+        - IAM, networking, secrets, logging, or deployment guidance
+        - Other infrastructure example
+    validations:
+      required: true
+  - type: textarea
+    id: current-behaviour
+    attributes:
+      label: Current behaviour or problem
+      description: Explain the specific issue, unsafe pattern, inconsistency, or usability gap.
+      placeholder: Include relevant fictional inputs, file paths, and exact error output where useful.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected outcome
+      description: Describe the smallest useful correction or improvement.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation evidence
+      description: List safe, credential-free checks already run or proposed.
+      placeholder: terraform fmt -check, atmos terraform validate, documentation link validation
+    validations:
+      required: false
+  - type: textarea
+    id: security-impact
+    attributes:
+      label: Security and operational impact
+      description: Note any IAM, networking, secret-handling, state, deployment, rollback, or compatibility implications.
+      placeholder: State "None identified" when the change is documentation-only.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public repository safety
+      options:
+        - label: I have used only fictional placeholders and have not included credentials, real AWS account identifiers, private infrastructure information, or client data.
+          required: true
+        - label: I understand that plans and applies require separate authorization and must not be tested against infrastructure without permission.
+          required: true
+        - label: This is not an undisclosed security vulnerability; security reports follow SECURITY.md.
+          required: true
