@@ -15,6 +15,16 @@ Useful changes include:
 - IAM, networking, secrets, logging, and rollback guidance
 - small refactors that make the reference easier to understand
 
+## Opening an Issue
+
+Choose the most focused form available:
+
+- [Documentation improvement](.github/ISSUE_TEMPLATE/documentation.yml) for missing, unclear, outdated, or inconsistent guidance.
+- [Terraform or Atmos example improvement](.github/ISSUE_TEMPLATE/terraform-example.yml) for a focused infrastructure example, validation, CI/CD, IAM, networking, secrets, logging, or deployment concern.
+- Use a blank issue when neither form fits.
+
+Include affected files, the expected outcome, and safe validation evidence where possible. Keep all values fictional and generic.
+
 ## Before Opening a PR
 
 Please check that your change:
