@@ -93,6 +93,7 @@ See the [Mermaid architecture diagram and component notes](docs/architecture.md)
 ├── tests/
 │   └── test_check_markdown_links.py
 ├── CONTRIBUTING.md
+├── SECURITY.md
 └── README.md
 ```
 
@@ -118,6 +119,7 @@ This pattern fits a Django, FastAPI, Node.js, or API service deployed to ECS Far
 - [Terraform state safety](docs/terraform-state-safety.md)
 - [Architecture](docs/architecture.md)
 - [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
 
 ## Local Validation
 

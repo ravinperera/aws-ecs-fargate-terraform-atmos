@@ -25,6 +25,10 @@ Please check that your change:
 - keeps reusable Terraform logic separate from environment-specific Atmos stack values
 - updates the README or docs when the repository layout or usage changes
 
+## Security Reports
+
+Do not use a public issue or pull request to disclose credentials, private infrastructure details, client data, exploit steps, or an unpatched vulnerability. Follow the [security policy](SECURITY.md) and use private vulnerability reporting when available.
+
 ## Terraform and Atmos Changes
 
 For Terraform or Atmos examples, include enough context for someone to understand the intent without assuming access to a real AWS account.
