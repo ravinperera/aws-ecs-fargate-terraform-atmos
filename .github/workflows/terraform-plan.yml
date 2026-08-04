@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "infrastructure/**"
+      - "**/*.md"
+      - "scripts/check_markdown_links.py"
+      - "tests/test_check_markdown_links.py"
       - ".github/workflows/terraform-plan.yml"
   workflow_dispatch:
     inputs:
@@ -42,6 +45,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Test repository validation helper
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Check local Markdown links
+        run: python3 scripts/check_markdown_links.py .
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
