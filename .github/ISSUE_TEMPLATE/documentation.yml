@@ -1,0 +1,49 @@
+name: Documentation improvement
+description: Report unclear, missing, outdated, or inconsistent repository guidance
+title: "[Docs]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve this public reference implementation. Keep examples generic and do not include credentials, real account identifiers, private infrastructure details, or client data.
+  - type: textarea
+    id: current-gap
+    attributes:
+      label: Current documentation gap
+      description: What is missing, unclear, outdated, or inconsistent?
+      placeholder: Describe the current wording or missing guidance and why it is difficult to use.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-outcome
+    attributes:
+      label: Expected improvement
+      description: What should a reader understand or be able to do after this is corrected?
+      placeholder: Describe the desired outcome rather than only suggesting a wording change.
+    validations:
+      required: true
+  - type: input
+    id: affected-files
+    attributes:
+      label: Affected files or sections
+      description: List known paths, headings, or links.
+      placeholder: README.md, docs/deployment-flow.md
+    validations:
+      required: false
+  - type: textarea
+    id: validation
+    attributes:
+      label: Suggested validation
+      description: Explain how the correction can be checked, including commands or links when relevant.
+      placeholder: Run the local Markdown link check and verify the example commands remain consistent.
+    validations:
+      required: false
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public repository safety
+      options:
+        - label: I have not included credentials, real AWS account identifiers, private infrastructure information, or client data.
+          required: true
+        - label: This is not an undisclosed security vulnerability; security reports follow SECURITY.md.
+          required: true
