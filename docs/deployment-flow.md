@@ -6,9 +6,11 @@ This example uses GitHub Actions and Terraform Atmos to plan and apply an ECS Fa
 
 ```bash
 cd infrastructure
-atmos terraform plan aws/ecs-fargate-service -s dev/eu-west-2
-atmos terraform apply aws/ecs-fargate-service -s dev/eu-west-2
+atmos terraform plan aws/ecs-fargate-service -s eu-west-2
+atmos terraform apply aws/ecs-fargate-service -s eu-west-2
 ```
+
+The stack manifest is stored at `stacks/dev/eu-west-2.yaml`, but the logical Atmos stack name is `eu-west-2` because the project uses the filename-based default.
 
 Use the commands above only after replacing placeholder values in the stack file and reviewing the role, network, and service inputs.
 
