@@ -29,15 +29,18 @@ cat infrastructure/stacks/dev/eu-west-2.yaml
 # 2. Review the reusable ECS component
 ls infrastructure/components/terraform/aws/ecs-fargate-service
 
-# 3. Run a Terraform plan through Atmos
-cd infrastructure
-atmos terraform plan aws/ecs-fargate-service -s eu-west-2
+# 3. Select the example's environment-based stack naming convention
+export ATMOS_STACKS_NAME_PATTERN='{environment}'
 
-# 4. Apply only after replacing placeholders and reviewing permissions
-atmos terraform apply aws/ecs-fargate-service -s eu-west-2
+# 4. Run a Terraform plan through Atmos
+cd infrastructure
+atmos terraform plan aws/ecs-fargate-service -s dev
+
+# 5. Apply only after replacing placeholders and reviewing permissions
+atmos terraform apply aws/ecs-fargate-service -s dev
 ```
 
-The manifest is stored at `stacks/dev/eu-west-2.yaml`, while its Atmos stack name is `eu-west-2` because this reference project uses the stack filename as the default logical name.
+The repository does not prescribe a permanent stack naming policy in `atmos.yaml`. The examples and CI use the environment variable above so the manifest at `stacks/dev/eu-west-2.yaml` resolves to the logical stack name `dev` without changing the infrastructure configuration.
 
 Expected adoption path:
 
@@ -118,7 +121,7 @@ This pattern fits a Django, FastAPI, Node.js, or API service deployed to ECS Far
 
 ## Local Validation
 
-The pull-request validation job is credential-free. It checks repository documentation, Atmos stack structure, and Terraform configuration without contacting AWS or running a plan.
+The pull-request validation job is credential-free. It checks repository documentation and validates the Terraform component through Atmos without contacting AWS or running a plan.
 
 Run the same checks locally:
 
@@ -127,9 +130,8 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/check_markdown_links.py .
 terraform -chdir=infrastructure/components/terraform/aws/ecs-fargate-service fmt -check -recursive
 cd infrastructure
-atmos validate stacks
-terraform -chdir=components/terraform/aws/ecs-fargate-service init -backend=false -input=false
-terraform -chdir=components/terraform/aws/ecs-fargate-service validate
+export ATMOS_STACKS_NAME_PATTERN='{environment}'
+atmos terraform validate aws/ecs-fargate-service -s dev
 ```
 
 The Markdown validator checks local file targets only and deliberately skips external URLs because reliable external-link checking requires network access. The authenticated Terraform plan remains manual through `workflow_dispatch`; it requires a real OIDC role and replacement of the example account and infrastructure values.
