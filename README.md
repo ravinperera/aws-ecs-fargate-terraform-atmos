@@ -83,6 +83,10 @@ See the [Mermaid architecture diagram and component notes](docs/architecture.md)
 │   ├── incident-and-rollback-runbook.md
 │   ├── scaling-and-cost-guardrails.md
 │   └── terraform-state-safety.md
+├── scripts/
+│   └── check_markdown_links.py
+├── tests/
+│   └── test_check_markdown_links.py
 ├── CONTRIBUTING.md
 └── README.md
 ```
@@ -109,6 +113,22 @@ This pattern fits a Django, FastAPI, Node.js, or API service deployed to ECS Far
 - [Terraform state safety](docs/terraform-state-safety.md)
 - [Architecture](docs/architecture.md)
 - [Contributing](CONTRIBUTING.md)
+
+## Local Validation
+
+The pull-request validation job is credential-free. It checks repository documentation and Terraform structure without contacting AWS or running a plan.
+
+Run the same checks locally:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+python3 scripts/check_markdown_links.py .
+terraform -chdir=infrastructure/components/terraform/aws/ecs-fargate-service fmt -check -recursive
+cd infrastructure
+atmos validate component aws/ecs-fargate-service -s dev/eu-west-2
+```
+
+The Markdown validator checks local file targets only and deliberately skips external URLs because reliable external-link checking requires network access. The authenticated Terraform plan remains manual through `workflow_dispatch`; it requires a real OIDC role and replacement of the example account and infrastructure values.
 
 ## Status
 
