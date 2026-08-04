@@ -10,10 +10,10 @@ on:
       - ".github/workflows/terraform-plan.yml"
   workflow_dispatch:
     inputs:
-      environment:
-        description: Environment name
+      stack:
+        description: Atmos stack name
         required: true
-        default: dev
+        default: eu-west-2
       region:
         description: AWS region
         required: true
@@ -34,7 +34,7 @@ env:
   TERRAFORM_VERSION: 1.8.5
   ATMOS_VERSION: 1.95.0
   ATMOS_COMPONENT: ${{ inputs.component || 'aws/ecs-fargate-service' }}
-  ATMOS_STACK: ${{ (inputs.environment || 'dev') }}/${{ (inputs.region || 'eu-west-2') }}
+  ATMOS_STACK: ${{ inputs.stack || 'eu-west-2' }}
 
 jobs:
   validate:
@@ -71,9 +71,17 @@ jobs:
         working-directory: infrastructure/components/terraform/aws/ecs-fargate-service
         run: terraform fmt -check -recursive
 
-      - name: Atmos validate
+      - name: Validate Atmos stacks
         working-directory: infrastructure
-        run: atmos validate component "$ATMOS_COMPONENT" -s "$ATMOS_STACK"
+        run: atmos validate stacks
+
+      - name: Terraform init without backend
+        working-directory: infrastructure/components/terraform/aws/ecs-fargate-service
+        run: terraform init -backend=false -input=false
+
+      - name: Terraform validate
+        working-directory: infrastructure/components/terraform/aws/ecs-fargate-service
+        run: terraform validate
 
   plan:
     name: Authenticated Terraform plan
