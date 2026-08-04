@@ -22,12 +22,23 @@
 
 Describe what was checked.
 
-Examples:
+Credential-free examples:
 
 ```bash
-terraform fmt -recursive
-atmos terraform validate aws/ecs-fargate-service -s dev/eu-west-2
-atmos terraform plan aws/ecs-fargate-service -s dev/eu-west-2
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+python3 scripts/check_markdown_links.py .
+terraform -chdir=infrastructure/components/terraform/aws/ecs-fargate-service fmt -check -recursive
+cd infrastructure
+atmos validate stacks
+terraform -chdir=components/terraform/aws/ecs-fargate-service init -backend=false -input=false
+terraform -chdir=components/terraform/aws/ecs-fargate-service validate
+```
+
+Authenticated plan example after replacing placeholders:
+
+```bash
+cd infrastructure
+atmos terraform plan aws/ecs-fargate-service -s eu-west-2
 ```
 
 If validation was not run, explain why.
