@@ -31,11 +31,13 @@ ls infrastructure/components/terraform/aws/ecs-fargate-service
 
 # 3. Run a Terraform plan through Atmos
 cd infrastructure
-atmos terraform plan aws/ecs-fargate-service -s dev/eu-west-2
+atmos terraform plan aws/ecs-fargate-service -s eu-west-2
 
 # 4. Apply only after replacing placeholders and reviewing permissions
-atmos terraform apply aws/ecs-fargate-service -s dev/eu-west-2
+atmos terraform apply aws/ecs-fargate-service -s eu-west-2
 ```
+
+The manifest is stored at `stacks/dev/eu-west-2.yaml`, while its Atmos stack name is `eu-west-2` because this reference project uses the stack filename as the default logical name.
 
 Expected adoption path:
 
@@ -116,7 +118,7 @@ This pattern fits a Django, FastAPI, Node.js, or API service deployed to ECS Far
 
 ## Local Validation
 
-The pull-request validation job is credential-free. It checks repository documentation and Terraform structure without contacting AWS or running a plan.
+The pull-request validation job is credential-free. It checks repository documentation, Atmos stack structure, and Terraform configuration without contacting AWS or running a plan.
 
 Run the same checks locally:
 
@@ -125,7 +127,9 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/check_markdown_links.py .
 terraform -chdir=infrastructure/components/terraform/aws/ecs-fargate-service fmt -check -recursive
 cd infrastructure
-atmos validate component aws/ecs-fargate-service -s dev/eu-west-2
+atmos validate stacks
+terraform -chdir=components/terraform/aws/ecs-fargate-service init -backend=false -input=false
+terraform -chdir=components/terraform/aws/ecs-fargate-service validate
 ```
 
 The Markdown validator checks local file targets only and deliberately skips external URLs because reliable external-link checking requires network access. The authenticated Terraform plan remains manual through `workflow_dispatch`; it requires a real OIDC role and replacement of the example account and infrastructure values.
