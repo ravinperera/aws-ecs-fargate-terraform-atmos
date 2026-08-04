@@ -32,10 +32,17 @@ For Terraform or Atmos examples, include enough context for someone to understan
 Where possible, mention the validation you performed, such as:
 
 ```bash
-terraform fmt -recursive
-atmos terraform validate aws/ecs-fargate-service -s dev/eu-west-2
-atmos terraform plan aws/ecs-fargate-service -s dev/eu-west-2
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+python3 scripts/check_markdown_links.py .
+terraform -chdir=infrastructure/components/terraform/aws/ecs-fargate-service fmt -check -recursive
+cd infrastructure
+atmos validate stacks
+terraform -chdir=components/terraform/aws/ecs-fargate-service init -backend=false -input=false
+terraform -chdir=components/terraform/aws/ecs-fargate-service validate
+atmos terraform plan aws/ecs-fargate-service -s eu-west-2
 ```
+
+The first six commands are credential-free. A real plan requires AWS access and replacement of the repository's placeholder account and infrastructure values.
 
 If a command cannot be run because the repository contains placeholder values, say that clearly in the PR notes.
 
