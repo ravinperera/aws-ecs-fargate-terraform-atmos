@@ -4,11 +4,14 @@ on:
   pull_request:
     paths:
       - "infrastructure/**"
+      - "**/*.md"
+      - "scripts/check_markdown_links.py"
+      - "tests/test_check_markdown_links.py"
       - ".github/workflows/terraform-plan.yml"
   workflow_dispatch:
     inputs:
-      environment:
-        description: Environment name
+      stack:
+        description: Atmos stack name
         required: true
         default: dev
       region:
@@ -30,8 +33,9 @@ concurrency:
 env:
   TERRAFORM_VERSION: 1.8.5
   ATMOS_VERSION: 1.95.0
+  ATMOS_STACKS_NAME_PATTERN: "{environment}"
   ATMOS_COMPONENT: ${{ inputs.component || 'aws/ecs-fargate-service' }}
-  ATMOS_STACK: ${{ (inputs.environment || 'dev') }}/${{ (inputs.region || 'eu-west-2') }}
+  ATMOS_STACK: ${{ inputs.stack || 'dev' }}
 
 jobs:
   validate:
@@ -43,6 +47,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Test repository validation helper
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Check local Markdown links
+        run: python3 scripts/check_markdown_links.py .
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -53,9 +63,8 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location --retry 3 \
-            "https://github.com/cloudposse/atmos/releases/download/v${ATMOS_VERSION}/atmos_${ATMOS_VERSION}_linux_amd64.tar.gz" \
-            --output atmos.tar.gz
-          tar -xzf atmos.tar.gz atmos
+            "https://github.com/cloudposse/atmos/releases/download/v${ATMOS_VERSION}/atmos_${ATMOS_VERSION}_linux_amd64" \
+            --output atmos
           sudo install -m 0755 atmos /usr/local/bin/atmos
           atmos version
 
@@ -63,9 +72,9 @@ jobs:
         working-directory: infrastructure/components/terraform/aws/ecs-fargate-service
         run: terraform fmt -check -recursive
 
-      - name: Atmos validate
+      - name: Atmos Terraform validate
         working-directory: infrastructure
-        run: atmos validate component "$ATMOS_COMPONENT" -s "$ATMOS_STACK"
+        run: atmos terraform validate "$ATMOS_COMPONENT" -s "$ATMOS_STACK"
 
   plan:
     name: Authenticated Terraform plan
@@ -100,9 +109,8 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location --retry 3 \
-            "https://github.com/cloudposse/atmos/releases/download/v${ATMOS_VERSION}/atmos_${ATMOS_VERSION}_linux_amd64.tar.gz" \
-            --output atmos.tar.gz
-          tar -xzf atmos.tar.gz atmos
+            "https://github.com/cloudposse/atmos/releases/download/v${ATMOS_VERSION}/atmos_${ATMOS_VERSION}_linux_amd64" \
+            --output atmos
           sudo install -m 0755 atmos /usr/local/bin/atmos
           atmos version
 
