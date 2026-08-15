@@ -40,6 +40,19 @@ class MarkdownLinkValidatorTests(unittest.TestCase):
                 ["README.md:3: missing local target 'docs/missing.md'"],
             )
 
+    def test_rejects_link_that_escapes_repository_root_even_when_target_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            parent = Path(temporary_directory)
+            root = parent / "repo"
+            root.mkdir()
+            (parent / "outside.md").write_text("# Outside\n", encoding="utf-8")
+            (root / "README.md").write_text("[Outside](../outside.md)\n", encoding="utf-8")
+
+            self.assertEqual(
+                check_markdown_links.validate(root),
+                ["README.md:1: local target escapes repository root '../outside.md'"],
+            )
+
     def test_ignores_links_inside_fenced_code_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
