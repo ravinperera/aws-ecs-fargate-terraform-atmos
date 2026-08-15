@@ -38,6 +38,14 @@ def _resolve_target(root: Path, source: Path, target: str) -> Path:
     return source.parent / path_text
 
 
+def _inside_root(root: Path, candidate: Path) -> bool:
+    try:
+        candidate.resolve(strict=False).relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
 def links_in_markdown(path: Path) -> list[tuple[int, str]]:
     links: list[tuple[int, str]] = []
     in_fence = False
@@ -71,8 +79,13 @@ def validate(root: Path) -> list[str]:
                 continue
 
             resolved = _resolve_target(root, markdown_file, target)
+            relative_source = markdown_file.relative_to(root)
+            if not _inside_root(root, resolved):
+                errors.append(
+                    f"{relative_source}:{line_number}: local target escapes repository root '{target}'"
+                )
+                continue
             if not resolved.exists():
-                relative_source = markdown_file.relative_to(root)
                 errors.append(f"{relative_source}:{line_number}: missing local target '{target}'")
 
     return errors
