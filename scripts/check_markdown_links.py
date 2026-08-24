@@ -12,7 +12,6 @@ from urllib.parse import unquote, urlsplit
 INLINE_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 REFERENCE_LINK_RE = re.compile(r"^\s*\[[^\]]+\]:\s*(\S+)")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
-EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel", "ftp"}
 
 
 def _clean_target(raw_target: str) -> str:
@@ -25,9 +24,10 @@ def _clean_target(raw_target: str) -> str:
 
 
 def _is_local_target(target: str) -> bool:
-    if not target or target.startswith(("#", "//")):
+    if not target or target.startswith("#"):
         return False
-    return urlsplit(target).scheme.lower() not in EXTERNAL_SCHEMES
+    parsed = urlsplit(target)
+    return not parsed.scheme and not parsed.netloc
 
 
 def _resolve_target(root: Path, source: Path, target: str) -> Path:
