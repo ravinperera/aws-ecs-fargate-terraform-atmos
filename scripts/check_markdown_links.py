@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate local links in Markdown files without network access."""
+"""Validate local links and images in Markdown files without network access."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-INLINE_LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
+INLINE_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 REFERENCE_LINK_RE = re.compile(r"^\s*\[[^\]]+\]:\s*(\S+)")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel", "ftp"}
