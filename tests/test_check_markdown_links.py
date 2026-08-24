@@ -27,6 +27,19 @@ class MarkdownLinkValidatorTests(unittest.TestCase):
 
             self.assertEqual(check_markdown_links.validate(root), [])
 
+    def test_accepts_existing_local_and_external_images(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            (root / "docs").mkdir()
+            (root / "docs" / "diagram.png").write_bytes(b"not-a-real-png")
+            (root / "README.md").write_text(
+                "![Diagram](docs/diagram.png)\n"
+                "![External](https://example.com/diagram.png)\n",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(check_markdown_links.validate(root), [])
+
     def test_reports_missing_local_link_with_source_line(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -38,6 +51,19 @@ class MarkdownLinkValidatorTests(unittest.TestCase):
             self.assertEqual(
                 check_markdown_links.validate(root),
                 ["README.md:3: missing local target 'docs/missing.md'"],
+            )
+
+    def test_reports_missing_local_image_with_source_line(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            (root / "README.md").write_text(
+                "# Example\n\n![Missing](docs/missing.png)\n",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(
+                check_markdown_links.validate(root),
+                ["README.md:3: missing local target 'docs/missing.png'"],
             )
 
     def test_rejects_link_that_escapes_repository_root_even_when_target_exists(self) -> None:
