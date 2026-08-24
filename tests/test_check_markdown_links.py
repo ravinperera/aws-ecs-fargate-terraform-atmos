@@ -40,6 +40,18 @@ class MarkdownLinkValidatorTests(unittest.TestCase):
 
             self.assertEqual(check_markdown_links.validate(root), [])
 
+    def test_accepts_non_http_uri_schemes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            (root / "README.md").write_text(
+                "[Repository](git+ssh://git@example.com/team/repo.git)\n"
+                "![Inline](data:image/png;base64,AAAA)\n"
+                "[Protocol relative](//example.com/docs)\n",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(check_markdown_links.validate(root), [])
+
     def test_reports_missing_local_link_with_source_line(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
