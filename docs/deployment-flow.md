@@ -1,6 +1,6 @@
 # Deployment Flow
 
-This example uses GitHub Actions and Terraform Atmos to plan and apply an ECS Fargate service component.
+This example separates credential-free pull-request validation from an explicitly dispatched AWS-authenticated Terraform plan.
 
 ## Quick Path
 
@@ -13,14 +13,30 @@ atmos terraform apply aws/ecs-fargate-service -s dev
 
 The repository keeps stack naming outside `atmos.yaml` so adopters can choose their own convention. The example environment variable maps the manifest at `stacks/dev/eu-west-2.yaml` to the logical stack name `dev` without changing the infrastructure configuration.
 
-Use the commands above only after replacing placeholder values in the stack file and reviewing the role, network, and service inputs.
+Use the commands above only after replacing placeholder values in the stack file, configuring your own AWS credentials, and reviewing the role, network, and service inputs. The included GitHub Actions workflow does not run `terraform apply`.
 
-## Flow
+## What the Included Workflow Actually Runs
 
-1. A developer opens a pull request or pushes to the default branch.
-2. The workflow obtains temporary cloud credentials.
-3. The workflow runs Terraform format, validation, and plan.
-4. A reviewed apply workflow can deploy the selected Atmos component.
+### Pull requests: credential-free validation
+
+For matching pull requests, the `validate` job runs without AWS credentials. It performs:
+
+1. Python regression tests for repository validation helpers.
+2. Local Markdown link validation.
+3. Terraform formatting checks.
+4. Backend-free Atmos/Terraform validation of the example component.
+
+It does **not** request an AWS OIDC token, contact a live AWS account, run `terraform plan`, publish an image, or update ECS.
+
+### Manual dispatch: authenticated plan
+
+When `terraform-plan.yml` is started with `workflow_dispatch`, the validation job runs first. If it succeeds, the `plan` job:
+
+1. Requests a GitHub OIDC token.
+2. Assumes the configured example AWS role using short-lived credentials.
+3. Runs `atmos terraform plan` for the selected component and stack.
+
+The included workflow stops at plan. Applying infrastructure, publishing a container image, promoting an image, and updating an ECS service are production-delivery steps that an adopter must design and approve separately.
 
 ## Adoption Order
 
@@ -28,8 +44,9 @@ Use the commands above only after replacing placeholder values in the stack file
 2. Review `infrastructure/stacks/dev/eu-west-2.yaml` for environment-specific values.
 3. Review `infrastructure/components/terraform/aws/ecs-fargate-service/` for reusable ECS logic.
 4. Replace placeholder account, VPC, subnet, load balancer, target group, role, and image values.
-5. Run a plan before applying anything.
-6. Add environment protection and approval gates before using the pattern for shared environments.
+5. Run credential-free validation before any authenticated plan.
+6. Run and review a Terraform plan before applying anything.
+7. Add environment protection, approval gates, image publication, and deployment automation before using the pattern for shared environments.
 
 ## Image Versioning
 
@@ -43,12 +60,14 @@ The `container_version` variable is designed to be passed from CI/CD at deployme
 
 ## Promotion Model
 
-A simple promotion model is:
+A simple production promotion model is:
 
 - Build once
 - Push image once
-- Promote the same image tag through dev, staging, and production
+- Promote the same immutable image through dev, staging, and production
 - Keep environment differences in stack files, not in the container image
+
+This promotion pipeline is a recommended extension; it is not implemented by the repository's current workflow.
 
 ## Not Production-Ready Until Reviewed
 
@@ -61,3 +80,4 @@ Before adopting this pattern in a real account, review:
 - Health check path and thresholds
 - Logging and retention settings
 - Rollback and incident response process
+- Build, image-promotion, approval, and apply controls that are outside the included workflow

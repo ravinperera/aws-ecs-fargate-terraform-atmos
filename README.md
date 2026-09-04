@@ -2,7 +2,7 @@
 
 Production-style AWS ECS Fargate deployment pattern using Terraform, Atmos, GitHub Actions, and AWS OIDC.
 
-This repository is a public reference implementation for deploying containerized workloads to AWS ECS Fargate using a reusable infrastructure-as-code structure. It is intentionally generic and does not include company-specific configuration, secrets, account IDs, or client data.
+This repository is a public reference implementation for deploying containerized workloads to AWS ECS Fargate using a reusable infrastructure-as-code structure. It is intentionally generic and does not include company-specific configuration, secrets, real account IDs, or client data.
 
 ## 30-Second Quick Start
 
@@ -58,15 +58,17 @@ This is a reference pattern, not a production-ready drop-in module. Treat it as 
 
 - Multi-environment infrastructure layout using Atmos stacks
 - Reusable Terraform component structure for ECS Fargate services
-- GitHub Actions workflow pattern using AWS OIDC instead of long-lived access keys
+- Credential-free pull-request validation plus an explicitly dispatched AWS OIDC Terraform-plan pattern
 - Separation of task definition, service configuration, networking, IAM, and environment inputs
 - Production-oriented conventions for logs, health checks, secrets, and deployment safety
 
 ## Architecture
 
-GitHub Actions uses AWS OIDC to assume a scoped deployment role, publish container images to ECR, and update an ECS service running in private subnets behind an Application Load Balancer. Runtime secrets come from Secrets Manager and application logs are sent to CloudWatch Logs.
+The included GitHub Actions workflow keeps pull-request validation credential-free. A manual `workflow_dispatch` can use AWS OIDC to assume a scoped role and run a Terraform plan after validation succeeds. It does not build or push images, run `terraform apply`, or update ECS automatically.
 
-See the [Mermaid architecture diagram and component notes](docs/architecture.md).
+The architecture documentation also shows the broader production pattern an adopter may add around the component: ECR image publication, reviewed infrastructure apply, ECS service updates, runtime secrets from Secrets Manager, private Fargate tasks behind an Application Load Balancer, and CloudWatch logging.
+
+See the [Mermaid architecture diagrams and workflow-boundary notes](docs/architecture.md).
 
 ## Repository Structure
 
