@@ -5,8 +5,8 @@ on:
     paths:
       - "infrastructure/**"
       - "**/*.md"
-      - "scripts/check_markdown_links.py"
-      - "tests/test_check_markdown_links.py"
+      - "scripts/**"
+      - "tests/**"
       - ".github/workflows/terraform-plan.yml"
   workflow_dispatch:
     inputs:
