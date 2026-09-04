@@ -89,9 +89,11 @@ See the [Mermaid architecture diagram and component notes](docs/architecture.md)
 │   ├── scaling-and-cost-guardrails.md
 │   └── terraform-state-safety.md
 ├── scripts/
-│   └── check_markdown_links.py
+│   ├── check_markdown_links.py
+│   └── check_public_reference_safety.py
 ├── tests/
-│   └── test_check_markdown_links.py
+│   ├── test_check_markdown_links.py
+│   └── test_check_public_reference_safety.py
 ├── CONTRIBUTING.md
 ├── SECURITY.md
 └── README.md
@@ -130,13 +132,14 @@ Run the same checks locally:
 ```bash
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/check_markdown_links.py .
+python3 scripts/check_public_reference_safety.py .
 terraform -chdir=infrastructure/components/terraform/aws/ecs-fargate-service fmt -check -recursive
 cd infrastructure
 export ATMOS_STACKS_NAME_PATTERN='{environment}'
 atmos terraform validate aws/ecs-fargate-service -s dev
 ```
 
-The Markdown validator checks local file targets only and deliberately skips external URLs because reliable external-link checking requires network access. The authenticated Terraform plan remains manual through `workflow_dispatch`; it requires a real OIDC role and replacement of the example account and infrastructure values.
+The Markdown validator checks local file targets only and deliberately skips external URLs because reliable external-link checking requires network access. The public-reference safety checker is also offline: it flags a narrow set of high-confidence credential shapes and unexpected 12-digit AWS account IDs, while allowing the repository's documented placeholder IDs and never printing matched values. The authenticated Terraform plan remains manual through `workflow_dispatch`; it requires a real OIDC role and replacement of the example account and infrastructure values.
 
 ## Status
 
