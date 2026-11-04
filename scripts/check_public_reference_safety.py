@@ -7,7 +7,7 @@ import re
 import sys
 from pathlib import Path
 
-TEXT_SUFFIXES = {".md", ".py", ".tf", ".yaml", ".yml", ".json", ".sh", ".txt"}
+TEXT_SUFFIXES = {".md", ".py", ".tf", ".tfvars", ".yaml", ".yml", ".json", ".sh", ".txt"}
 EXCLUDED_DIRS = {".git", ".terraform", "node_modules", "vendor"}
 ALLOWED_AWS_ACCOUNT_IDS = {"111122223333", "123456789012"}
 
