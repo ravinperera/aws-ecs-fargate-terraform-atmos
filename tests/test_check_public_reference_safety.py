@@ -107,5 +107,42 @@ class PublicReferenceSafetyTests(unittest.TestCase):
             self.assertIn("passed", result.stdout)
 
 
+    def test_scans_checkouts_under_excluded_name_parents(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            secret = "AKIA" + "X" * 16
+            for parent in (".git", ".terraform", "node_modules", "vendor"):
+                with self.subTest(parent=parent):
+                    root = Path(tmp) / parent / "checkout"
+                    root.mkdir(parents=True)
+                    (root / "example.tfvars").write_text(
+                        f'aws_access_key_id = "{secret}"\n',
+                        encoding="utf-8",
+                    )
+
+                    result = self.run_check(root)
+
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertIn("example.tfvars:1: AWS access key ID", result.stderr)
+                    self.assertNotIn(secret, result.stderr)
+
+    def test_excluded_directories_inside_checkout_stay_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "vendor" / "checkout"
+            root.mkdir(parents=True)
+            (root / "README.md").write_text("Safe public example.\n", encoding="utf-8")
+            for excluded in (".git", ".terraform", "node_modules", "vendor"):
+                directory = root / excluded
+                directory.mkdir()
+                (directory / "generated.tfvars").write_text(
+                    'aws_access_key_id = "AKIA' + "X" * 16 + '"\n',
+                    encoding="utf-8",
+                )
+
+            result = self.run_check(root)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("passed", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

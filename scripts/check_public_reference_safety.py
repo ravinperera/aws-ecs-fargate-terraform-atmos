@@ -24,7 +24,7 @@ def iter_text_files(root: Path):
     for path in root.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
             continue
-        if any(part in EXCLUDED_DIRS for part in path.parts):
+        if any(part in EXCLUDED_DIRS for part in path.relative_to(root).parts[:-1]):
             continue
         yield path
 
