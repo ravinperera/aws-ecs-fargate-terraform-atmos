@@ -144,5 +144,49 @@ class PublicReferenceSafetyTests(unittest.TestCase):
             self.assertIn("passed", result.stdout)
 
 
+    def test_rejects_symlinked_text_files_without_reading_targets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp)
+            root = parent / "checkout"
+            root.mkdir()
+            external = parent / "external-target.txt"
+            # Invalid UTF-8 would crash the scanner if the target were read.
+            external.write_bytes(b"\xff")
+            internal = root / "ordinary.bin"
+            internal.write_bytes(b"\xff")
+            for name, target in (
+                ("external.txt", external),
+                ("internal.md", internal),
+                ("dangling.tfvars", parent / "missing-target"),
+            ):
+                (root / name).symlink_to(target)
+
+            result = self.run_check(root)
+
+            self.assertEqual(result.returncode, 1, result.stderr)
+            for name in ("external.txt", "internal.md", "dangling.tfvars"):
+                self.assertIn(
+                    f"{name}: symlinked text file is not allowed", result.stderr
+                )
+            self.assertNotIn(str(parent), result.stderr)
+            self.assertNotIn("external-target.txt", result.stderr)
+            self.assertNotIn("ordinary.bin", result.stderr)
+            self.assertNotIn("missing-target", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+
+    def test_ignores_symlinked_text_files_in_excluded_directories(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            generated = root / ".terraform"
+            generated.mkdir()
+            (generated / "generated.txt").symlink_to(root / "missing")
+            (root / "README.md").write_text("Safe example.\n", encoding="utf-8")
+
+            result = self.run_check(root)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("passed", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
