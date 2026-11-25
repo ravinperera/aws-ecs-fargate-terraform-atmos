@@ -22,11 +22,12 @@ AWS_ACCOUNT_ID = re.compile(r"(?<!\d)(\d{12})(?!\d)")
 
 def iter_text_files(root: Path):
     for path in root.rglob("*"):
-        if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
+        if path.suffix.lower() not in TEXT_SUFFIXES:
             continue
         if any(part in EXCLUDED_DIRS for part in path.relative_to(root).parts[:-1]):
             continue
-        yield path
+        if path.is_symlink() or path.is_file():
+            yield path
 
 
 def line_number(text: str, offset: int) -> int:
@@ -34,8 +35,10 @@ def line_number(text: str, offset: int) -> int:
 
 
 def check_file(path: Path, root: Path) -> list[str]:
-    text = path.read_text(encoding="utf-8")
     display_path = path.relative_to(root)
+    if path.is_symlink():
+        return [f"{display_path}: symlinked text file is not allowed"]
+    text = path.read_text(encoding="utf-8")
     findings: list[str] = []
 
     for label, pattern in SECRET_PATTERNS:
